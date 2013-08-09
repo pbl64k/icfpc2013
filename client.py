@@ -3,6 +3,7 @@ from secret import secret
 
 import httplib
 import json
+import time
 
 class Client:
     def __init__(self, logger = None):
@@ -15,10 +16,17 @@ class Client:
         cn = httplib.HTTPConnection('icfpc2013.cloudapp.net')
         cn.request('POST', '/' + name + '?auth=' + secret, rq_body)
         resp = cn.getresponse()
+        if resp.status == 429:
+            self.logger('Too many requests -- sleeping then repeating.\n')
+            time.sleep(21)
+            return self.invoke(name, param)
         raw = resp.read()
         data = None
         if raw is not None and raw != '':
-            data = json.loads(raw)
+            try:
+                data = json.loads(raw)
+            except ValueError:
+                pass
         return resp.status, resp.reason, data
 
     def print_status(self):
@@ -66,7 +74,7 @@ class Client:
         return resp
 
     def evl(self, pid, xs):
-        st, msg, resp = self.invoke('eval', {'id': pid, 'arguments': map(hex, xs)})
+        st, msg, resp = self.invoke('eval', {'id': pid, 'arguments': map(lambda x: x if x[-1] != 'L' else x[:-1], map(hex, xs))})
         self.logger('Status: %d\n' % st)
         self.logger('Reason: %s\n' % msg)
         self.logger('Response:\n')

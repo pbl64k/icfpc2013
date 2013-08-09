@@ -50,7 +50,7 @@ def eval_op1(op, x):
     if op == 'shr4':
         return (x >> 4) & mask_64
     if op == 'shr16':
-        return (x >> 4) & mask_64
+        return (x >> 16) & mask_64
     assert False
     
 def eval_op2(op, x, y):
