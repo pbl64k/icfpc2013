@@ -16,7 +16,7 @@ def process(logger, cl, resp, force = False):
             logger('size: %d ops: %s id: %s %s %s\n' % \
                 (x['size'], str(x['operators']), x['id'], \
                 ('SOLVED!' if solved else 'unsolved.'), \
-                (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x and x['timeLeft'] > 0 else '')))
+                (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
         if x['size'] > 12:
@@ -31,8 +31,8 @@ def process(logger, cl, resp, force = False):
             logger(str(ops(p)) + '\n\n')
             cl.guess(x['id'], code)
             return True
-        #if x['size'] <= 9 and 'fold' not in x['operators']:
-        if x['size'] <= 12 and 'fold' not in x['operators'] and 'tfold' in x['operators']:
+        if x['size'] <= 9 and 'fold' not in x['operators']:
+        #if x['size'] <= 12 and 'fold' not in x['operators'] and 'tfold' in x['operators']:
             tabu = set()
             solve_4(logger, cl, x)
             return True
