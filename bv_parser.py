@@ -45,6 +45,8 @@ def tokenize0(acc, t, s):
     return tokenize0(acc, t, s)
 
 if __name__ == '__main__':
-    print tokenize('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')
-    print parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')
-    pass
+    assert tokenize('(lambda (x) (fold x 0 (lambda (y z) (or y z))))') == \
+        ['(', 'lambda', '(', 'x', ')', '(', 'fold', 'x', '0', '(', 'lambda', '(', 'y', 'z', ')', '(', 'or', 'y', 'z', ')', ')', ')', ')']
+    assert parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))') == \
+        ['lambda', ['x'], ['fold', 'x', '0', ['lambda', ['y', 'z'], ['or', 'y', 'z']]]]
+
