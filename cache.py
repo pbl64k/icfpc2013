@@ -47,8 +47,10 @@ class Cache:
         self.problems[pid]['guesses'].append(code)
         res = self.cl.guess(pid, code)
         if res['status'] == 'win':
+            self.logger('********** WIN **********')
             self.problems[pid]['solved'] = True
             return True
+        self.logger('---------- BOO ----------')
         if 'values' in res:
             x, f, m = map(lambda x: int(x[2:], 16), res['values'])
             if 'values' not in self.problems[pid]:
