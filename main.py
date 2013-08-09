@@ -14,11 +14,13 @@ def logger(s):
     sys.stderr.write(s)
 
 def main(cl):
-    #cl.upd_problems()
-    
-    resp = cl.myproblems()
-    
-    process(logger, cl, resp)
+    while True:
+        cl.upd_problems()
+        resp = cl.myproblems()
+        res = process(logger, cl, resp)
+        if not res:
+            logger('Done.\n')
+            break
 
 with_cache(logger, main)
 

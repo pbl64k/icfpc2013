@@ -79,6 +79,8 @@ class Client:
         self.logger('Reason: %s\n' % msg)
         self.logger('Response:\n')
         for k in resp:
+            if k == 'outputs':
+                continue
             self.logger('%s: %s\n' % (k, str(resp[k])))
         return resp
 

@@ -16,8 +16,8 @@ def process(logger, cl, resp, force = False):
                 (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x and x['timeLeft'] > 0 else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
-        #if x['size'] > 7:
-        #    break
+        if x['size'] > 10:
+            return False
         if x['size'] == 3 and len(x['operators']) == 1:
             logger('\nSolving...\n')
             code = solve_3(x['id'], x['size'], x['operators'])
@@ -27,10 +27,11 @@ def process(logger, cl, resp, force = False):
             logger(str(sz(p)) + '\n')
             logger(str(ops(p)) + '\n\n')
             cl.guess(x['id'], code)
-            break
-        if x['size'] <= 8 and 'fold' not in x['operators']:
+            return True
+        if x['size'] <= 9 and 'fold' not in x['operators']:
             solve_4(logger, cl, x)
-            break
+            return True
+    return False
 
 def solve_3(pid, size, opers):
     assert size == 3
