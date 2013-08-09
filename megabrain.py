@@ -28,7 +28,8 @@ def process(logger, cl, resp, force = False):
             logger(str(ops(p)) + '\n\n')
             cl.guess(x['id'], code)
             return True
-        if x['size'] <= 9 and 'fold' not in x['operators']:
+        #if x['size'] <= 9 and 'fold' not in x['operators']:
+        if x['size'] <= 10 and 'fold' not in x['operators'] and 'tfold' in x['operators']:
             while True:
                 if solve_4(logger, cl, x):
                     break
@@ -52,7 +53,7 @@ def solve_4(logger, cl, prob):
         itr += 1
         if itr % 5000 == 0:
             logger('iter: %d\n' % itr)
-        if itr > 1000000:
+        if itr > 250000:
             return False
         p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1)]
         #logger('Trying: %s\n' % gen(p))
@@ -83,6 +84,7 @@ def gen_ast(sz, ops, vs):
             except:
                 continue
 
+# FIXME?
 def gen_ast0(sz, ops, vs, last):
     if sz < 1:
         raise Exception()
