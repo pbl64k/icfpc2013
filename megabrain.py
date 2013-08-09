@@ -33,7 +33,7 @@ def process(logger, cl, resp, force = False):
             cl.guess(x['id'], code)
             return True
         if (x['size'] <= 11 and 'fold' not in x['operators']) or \
-            (x['size'] <= 13 and 'fold' not in x['operators'] and 'tfold' in x['operators']):
+            (x['size'] <= 14 and 'fold' not in x['operators'] and 'tfold' in x['operators']):
             if tabu_pid != x['id']:
                 logger('Blowing up the tabu list.\n')
                 tabu_pid = x['id']
