@@ -6,10 +6,11 @@ from bv import evl
 import copy
 import random
 
+tabu_pid = None
 tabu = set()
 
 def process(logger, cl, resp, force = False):
-    global tabu
+    global tabu_pid, tabu
     for x in resp:
         solved = 'solved' in x and x['solved']
         if not solved:
@@ -19,7 +20,7 @@ def process(logger, cl, resp, force = False):
                 (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
-        if x['size'] > 12:
+        if x['size'] > 14:
             return False
         if x['size'] == 3 and len(x['operators']) == 1:
             logger('\nSolving...\n')
@@ -31,9 +32,12 @@ def process(logger, cl, resp, force = False):
             logger(str(ops(p)) + '\n\n')
             cl.guess(x['id'], code)
             return True
-        #if x['size'] <= 10 and 'fold' not in x['operators']:
-        if x['size'] <= 12 and 'fold' not in x['operators'] and 'tfold' in x['operators']:
-            tabu = set()
+        if (x['size'] <= 11 and 'fold' not in x['operators']) or \
+            (x['size'] <= 13 and 'fold' not in x['operators'] and 'tfold' in x['operators']):
+            if tabu_pid != x['id']:
+                logger('Blowing up the tabu list.\n')
+                tabu_pid = x['id']
+                tabu = set()
             solve_4(logger, cl, x)
             return True
     return False
@@ -56,7 +60,7 @@ def solve_4(logger, cl, prob):
         itr += 1
         if itr % 5000 == 0:
             logger('iter: %d\n' % itr)
-        if itr > 250000:
+        if itr > 500000:
             return False
         p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1)]
         #logger('Trying: %s\n' % gen(p))

@@ -8,6 +8,7 @@ from bv import evl
 from megabrain import *
 
 import json
+import os.path
 import sys
 
 def logger(s):
@@ -21,6 +22,11 @@ def main(cl):
         if not res:
             logger('Done.\n')
             break
+        try:
+            os.path.exists('./x')
+            break
+        except IOError:
+            continue
 
 with_cache(logger, main)
 
