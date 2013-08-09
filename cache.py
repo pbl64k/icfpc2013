@@ -17,8 +17,10 @@ class Cache:
         if self.logger is None:
             self.logger = lambda x: None
         self.cl = Client(self.logger)
-        #self.problems = {}
-        self.problems = pickle.load(open('./problems.dat'))
+        try:
+            self.problems = pickle.load(open('./problems.dat'))
+        except (ValueError, IOError):
+            self.problems = {}
 
     def save(self):
         self.logger('Saving...\n')
