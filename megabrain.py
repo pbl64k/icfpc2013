@@ -48,9 +48,9 @@ def solve_4(logger, cl, prob):
     itr = 0
     while True:
         itr += 1
-        if itr % 100 == 0:
+        if itr % 5000 == 0:
             logger('iter: %d\n' % itr)
-        if itr > 10000:
+        if itr > 100000:
             break
         p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1)]
         #logger('Trying: %s\n' % gen(p))
