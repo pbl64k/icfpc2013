@@ -49,8 +49,8 @@ class Cache:
         if res['status'] == 'win':
             self.problems[pid]['solved'] = True
             return True
-        if 'values' in resp:
-            x, f, m = map(lambda x: int(x[2:], 16), resp['values'])
+        if 'values' in res:
+            x, f, m = map(lambda x: int(x[2:], 16), res['values'])
             if 'values' not in self.problems[pid]:
                 self.problems[pid]['values'] = {}
             self.problems[pid]['values'][x] = f

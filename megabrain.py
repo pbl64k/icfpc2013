@@ -16,8 +16,8 @@ def process(logger, cl, resp, force = False):
                 (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x and x['timeLeft'] > 0 else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
-        if x['size'] > 7:
-            break
+        #if x['size'] > 7:
+        #    break
         if x['size'] == 3 and len(x['operators']) == 1:
             logger('\nSolving...\n')
             code = solve_3(x['id'], x['size'], x['operators'])
@@ -28,7 +28,7 @@ def process(logger, cl, resp, force = False):
             logger(str(ops(p)) + '\n\n')
             cl.guess(x['id'], code)
             break
-        if x['size'] <= 7 and 'tfold' not in x['operators'] and 'fold' not in x['operators']:
+        if x['size'] <= 8 and 'fold' not in x['operators']:
             solve_4(logger, cl, x)
             break
 
@@ -50,7 +50,7 @@ def solve_4(logger, cl, prob):
         itr += 1
         if itr % 5000 == 0:
             logger('iter: %d\n' % itr)
-        if itr > 100000:
+        if itr > 1000000:
             break
         p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1)]
         #logger('Trying: %s\n' % gen(p))
@@ -66,12 +66,21 @@ def gen_vals():
     return vals
 
 def gen_ast(sz, ops, vs):
-    while True:
-        try:
-            res = gen_ast0(sz, ops, vs)
-            return res[1]
-        except:
-            continue
+    if 'tfold' in ops:
+        ops0 = [x for x in ops if ops != 'tfold']
+        while True:
+            try:
+                res = ['fold', 'x_0', '0', ['lambda', ['x_0', 'x_1'], gen_ast0(sz - 4, ops0, vs + 1)[1]]]
+                return res
+            except:
+                continue
+    else:
+        while True:
+            try:
+                res = gen_ast0(sz, ops, vs)
+                return res[1]
+            except:
+                continue
 
 def gen_ast0(sz, ops, vs):
     if sz < 1:
