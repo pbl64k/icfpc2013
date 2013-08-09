@@ -29,8 +29,9 @@ def process(logger, cl, resp, force = False):
             cl.guess(x['id'], code)
             return True
         if x['size'] <= 9 and 'fold' not in x['operators']:
-            solve_4(logger, cl, x)
-            return True
+            while True:
+                if solve_4(logger, cl, x):
+                    break
     return False
 
 def solve_3(pid, size, opers):
@@ -52,13 +53,12 @@ def solve_4(logger, cl, prob):
         if itr % 5000 == 0:
             logger('iter: %d\n' % itr)
         if itr > 1000000:
-            break
+            return False
         p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1)]
         #logger('Trying: %s\n' % gen(p))
         if test(lambda x: None, cl, prob, p):
             logger('Found: %s\n' % gen(p))
-            cl.guess(pid, gen(p))
-            break
+            return cl.guess(pid, gen(p))
 
 def gen_vals():
     vals = [0, 1, 2, 3, 4, 7, 8, 15, 16, 0xff, 0x100, 0x0102030405060708, 0xffffffffffffffff]
