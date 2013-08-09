@@ -14,7 +14,7 @@ def logger(s):
     sys.stderr.write(s)
 
 def main(cl):
-    pid = cl.train(10, ['tfold'])
+    pid = cl.train(11, ['tfold'])
     process(logger, cl, [cl.problems[pid]], True)
 
 with_cache(logger, main)

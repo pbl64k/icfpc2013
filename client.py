@@ -12,13 +12,14 @@ class Client:
             self.logger = lambda x: None
 
     def invoke(self, name, param):
+        self.logger('Invoking %s...\n' % name)
         rq_body = json.dumps(param)
         cn = httplib.HTTPConnection('icfpc2013.cloudapp.net')
         cn.request('POST', '/' + name + '?auth=' + secret, rq_body)
         resp = cn.getresponse()
         if resp.status == 429:
             self.logger('Too many requests -- sleeping then repeating.\n')
-            time.sleep(21)
+            time.sleep(5)
             return self.invoke(name, param)
         raw = resp.read()
         data = None
@@ -31,6 +32,7 @@ class Client:
 
     def print_status(self):
         st, msg, resp = self.invoke('status', '')
+        assert st == 200
         self.logger('\nStatus: %d\n' % st)
         self.logger('Reason: %s\n' % msg)
         self.logger('Response:\n')
@@ -48,12 +50,14 @@ class Client:
             if ops is not None:
                 args['operators'] = ops
         st, msg, resp = self.invoke('train', args)
+        assert st == 200
         resp['operators'] = map(lambda x: x.encode('latin1'), resp['operators'])
-        self.logger('Status: %d\n' % st)
+        self.logger('\nStatus: %d\n' % st)
         self.logger('Reason: %s\n' % msg)
         self.logger('Response:\n')
         for k in resp:
             self.logger('%s: %s\n' % (k, str(resp[k])))
+        self.logger('\n')
         return resp
 
     def myproblems(self):
@@ -66,21 +70,25 @@ class Client:
 
     def guess(self, pid, code):
         st, msg, resp = self.invoke('guess', {'id': str(pid), 'program': str(code)})
-        self.logger('Status: %d\n' % st)
+        self.logger('\nStatus: %d\n' % st)
         self.logger('Reason: %s\n' % msg)
-        self.logger('Response:\n')
-        for k in resp:
-            self.logger('%s: %s\n' % (k, str(resp[k])))
+        if st == 200:
+            self.logger('Response:\n')
+            for k in resp:
+                self.logger('%s: %s\n' % (k, str(resp[k])))
+        self.logger('\n')
         return resp
 
     def evl(self, pid, xs):
         st, msg, resp = self.invoke('eval', {'id': pid, 'arguments': map(lambda x: x if x[-1] != 'L' else x[:-1], map(hex, xs))})
-        self.logger('Status: %d\n' % st)
+        self.logger('\nStatus: %d\n' % st)
         self.logger('Reason: %s\n' % msg)
-        self.logger('Response:\n')
-        for k in resp:
-            if k == 'outputs':
-                continue
-            self.logger('%s: %s\n' % (k, str(resp[k])))
+        if st == 200:
+            self.logger('Response:\n')
+            for k in resp:
+                if k == 'outputs':
+                    continue
+                self.logger('%s: %s\n' % (k, str(resp[k])))
+        self.logger('\n')
         return resp
 

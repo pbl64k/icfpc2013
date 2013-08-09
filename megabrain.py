@@ -16,7 +16,7 @@ def process(logger, cl, resp, force = False):
                 (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x and x['timeLeft'] > 0 else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
-        if x['size'] > 10:
+        if x['size'] > 12:
             return False
         if x['size'] == 3 and len(x['operators']) == 1:
             logger('\nSolving...\n')
@@ -29,10 +29,9 @@ def process(logger, cl, resp, force = False):
             cl.guess(x['id'], code)
             return True
         #if x['size'] <= 9 and 'fold' not in x['operators']:
-        if x['size'] <= 10 and 'fold' not in x['operators'] and 'tfold' in x['operators']:
-            while True:
-                if solve_4(logger, cl, x):
-                    break
+        if x['size'] <= 12 and 'fold' not in x['operators'] and 'tfold' in x['operators']:
+            solve_4(logger, cl, x)
+            return True
     return False
 
 def solve_3(pid, size, opers):
@@ -57,6 +56,7 @@ def solve_4(logger, cl, prob):
             return False
         p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1)]
         #logger('Trying: %s\n' % gen(p))
+        #if test(logger, cl, prob, p):
         if test(lambda x: None, cl, prob, p):
             logger('Found: %s\n' % gen(p))
             return cl.guess(pid, gen(p))
@@ -123,15 +123,16 @@ def gen_ast0(sz, ops, vs, last):
 def test(logger, cl, prob, p):
     assert valid(p)
     if sz(p) != prob['size']:
-        logger('Size mismatch: %d vs. %s.\n' % (sz(p), prob['size']))
+        #logger('Size mismatch: %d vs. %s.\n' % (sz(p), prob['size']))
         return False
     if ops(p) != frozenset(prob['operators']):
-        logger('Ops mismatch.\n')
+        #logger('Ops mismatch.\n')
         return False
     for k in prob['values']:
         logger('.')
         if prob['values'][k] != evl(p, k):
             logger('\nMismatch for %s: %s vs. %s.\n' % (hex(k), hex(prob['values'][k]), hex(evl(p, k))))
+            #exit()
             return False
     logger('\n')
     logger('All ok!\n')

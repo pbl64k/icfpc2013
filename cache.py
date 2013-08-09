@@ -49,6 +49,7 @@ class Cache:
         if res['status'] == 'win':
             self.logger('\n********** WIN **********\n\n')
             self.problems[pid]['solved'] = True
+            self.save()
             return True
         self.logger('\n---------- BOO ----------\n\n')
         if 'values' in res:
@@ -56,17 +57,20 @@ class Cache:
             if 'values' not in self.problems[pid]:
                 self.problems[pid]['values'] = {}
             self.problems[pid]['values'][x] = f
+            self.save()
         return False
 
     def evl(self, pid, xs):
         assert pid in self.problems
         res = self.cl.evl(pid, xs)
-        assert res['status'] == 'ok'
+        if res['status'] != 'ok':
+            return
         for x, f in zip(xs, res['outputs']):
             f0 = int(f[2:], 16)
             if 'values' not in self.problems[pid]:
                 self.problems[pid]['values'] = {}
             self.problems[pid]['values'][x] = f0
+        self.save()
 
     def train(self, size = None, ops = None):
         res = self.cl.train(size, ops)
