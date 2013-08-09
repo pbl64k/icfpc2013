@@ -12,7 +12,7 @@ def process(logger, cl, resp, force = False):
         logger('size: %d ops: %s id: %s %s %s\n' % \
             (x['size'], str(x['operators']), x['id'], \
             ('SOLVED!' if solved else 'unsolved.'), \
-            (('time:' + str(x['timeLeft'])) if 'timeLeft' in x and x['timeLeft'] > 0 else '')))
+            (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x and x['timeLeft'] > 0 else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
         if x['size'] > 6:
@@ -49,7 +49,7 @@ def solve_4(logger, cl, prob):
         itr += 1
         if itr % 100 == 0:
             logger('iter: %d\n' % itr)
-        if itr > 1000:
+        if itr > 10000:
             break
         p = ['lambda', ['x_0'], gen_ast(prob['size'], prob['operators'], 1)]
         #logger('Trying: %s\n' % gen(p))
