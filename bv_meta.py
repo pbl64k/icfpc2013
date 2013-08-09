@@ -96,7 +96,22 @@ def valid_op2(t):
 def valid_ident(t):
     return isinstance(t, str) and re.match('^[a-z][a-z_0-9]*$', t)
 
+def sz(t):
+    if valid_const(t) or valid_ident(t):
+        return 1
+    if valid_if(t):
+        return 1 + sz(t[1]) + sz(t[2]) + sz(t[3])
+    if valid_fold(t):
+        return 2 + sz(t[1]) + sz(t[2]) + sz(t[3][2])
+    if valid_op1(t):
+        return 1 + sz(t[1])
+    if valid_op2(t):
+        return 1 + sz(t[1]) + sz(t[2])
+    if valid_lambda(t, 1) or valid_lambda(t, 2):
+        return 1 + sz(t[2])
+
 if __name__ == '__main__':
     assert valid_op2(parse('(or y z)')) == True
     assert valid(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == True
+    assert sz(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == 8
 
