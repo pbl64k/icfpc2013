@@ -9,13 +9,14 @@ import random
 def process(logger, cl, resp, force = False):
     for x in resp:
         solved = 'solved' in x and x['solved']
-        logger('size: %d ops: %s id: %s %s %s\n' % \
-            (x['size'], str(x['operators']), x['id'], \
-            ('SOLVED!' if solved else 'unsolved.'), \
-            (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x and x['timeLeft'] > 0 else '')))
+        if not solved:
+            logger('size: %d ops: %s id: %s %s %s\n' % \
+                (x['size'], str(x['operators']), x['id'], \
+                ('SOLVED!' if solved else 'unsolved.'), \
+                (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x and x['timeLeft'] > 0 else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
-        if x['size'] > 6:
+        if x['size'] > 7:
             break
         if x['size'] == 3 and len(x['operators']) == 1:
             logger('\nSolving...\n')
@@ -27,7 +28,7 @@ def process(logger, cl, resp, force = False):
             logger(str(ops(p)) + '\n\n')
             cl.guess(x['id'], code)
             break
-        if x['size'] <= 6 and 'if0' not in x['operators'] and 'tfold' not in x['operators'] and 'fold' not in x['operators']:
+        if x['size'] <= 7 and 'tfold' not in x['operators'] and 'fold' not in x['operators']:
             solve_4(logger, cl, x)
             break
 
@@ -51,7 +52,7 @@ def solve_4(logger, cl, prob):
             logger('iter: %d\n' % itr)
         if itr > 10000:
             break
-        p = ['lambda', ['x_0'], gen_ast(prob['size'], prob['operators'], 1)]
+        p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1)]
         #logger('Trying: %s\n' % gen(p))
         if test(lambda x: None, cl, prob, p):
             logger('Found: %s\n' % gen(p))
@@ -93,6 +94,13 @@ def gen_ast0(sz, ops, vs):
         if nsz < 0:
             raise Exception()
         return nsz, [op, ast1, ast2]
+    elif op == 'if0':
+        nsz, ast1 = gen_ast0(sz - 1, ops, vs)
+        nsz, ast2 = gen_ast0(nsz, ops, vs)
+        nsz, ast3 = gen_ast0(nsz, ops, vs)
+        if nsz < 0:
+            raise Exception()
+        return nsz, [op, ast1, ast2, ast3]
     assert False
 
 def test(logger, cl, prob, p):
