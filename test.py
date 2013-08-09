@@ -33,6 +33,8 @@ for x in resp:
         print
         cl.guess(x['id'], code)
         break
+    if x['size'] > 4:
+        break
 
 cl.print_status()
 
