@@ -124,15 +124,22 @@ def op_expr(t):
         return frozenset([t[0]]) | op_expr(t[1]) | op_expr(t[2])
     assert False
 
+def ops(t):
+    assert valid(t)
+    if valid_fold(t[2]) and t[2][2] == '0':
+        return frozenset(['tfold']) | op_expr(t[2][3][2])
+    return op_expr(t[2])
+
 def gen(t):
     if isinstance(t, list):
         return '(' + ' '.join(map(gen, t)) + ')'
     return t
 
 if __name__ == '__main__':
-    assert valid_op2(parse('(or y z)')) == True
-    assert valid(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == True
+    assert valid_op2(parse('(or y z)'))
+    assert valid(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))'))
     assert sz(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == 8
     assert op_expr(parse('(fold x 0 (lambda (y z) (or y z)))')) == frozenset(['fold', 'or'])
+    assert ops(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == frozenset(['tfold', 'or'])
     assert gen(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == '(lambda (x) (fold x 0 (lambda (y z) (or y z))))'
 
