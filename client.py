@@ -64,7 +64,7 @@ class Client:
         st, msg, resp = self.invoke('myproblems', '')
         assert st == 200
         self.logger('Total (live) problems: %d\n' % len(resp))
-        resp.sort(key = lambda x: x['size'])
+        resp.sort(key = lambda x: (x['timeLimit'] if 'timeLimit' in x else 1000, x['size']))
         for ix in range(len(resp)):
             resp[ix]['operators'] = map(lambda x: x.encode('latin1'), resp[ix]['operators'])
         return resp

@@ -21,25 +21,25 @@ def process(logger, cl, resp, force = False):
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
         if x['size'] > 14:
-            return False
-        if x['size'] == 3 and len(x['operators']) == 1:
-            logger('\nSolving...\n')
-            code = solve_3(x['id'], x['size'], x['operators'])
-            logger(code + '\n')
-            p = parse(code)
-            logger(str(p) + '\n')
-            logger(str(sz(p)) + '\n')
-            logger(str(ops(p)) + '\n\n')
-            cl.guess(x['id'], code)
-            return True
-        if (x['size'] <= 11 and 'fold' not in x['operators']) or \
-            (x['size'] <= 14 and 'fold' not in x['operators'] and 'tfold' in x['operators']):
+            return False, False
+        #if x['size'] == 3 and len(x['operators']) == 1:
+        #    logger('\nSolving...\n')
+        #    code = solve_3(x['id'], x['size'], x['operators'])
+        #    logger(code + '\n')
+        #    p = parse(code)
+        #    logger(str(p) + '\n')
+        #    logger(str(sz(p)) + '\n')
+        #    logger(str(ops(p)) + '\n\n')
+        #    cl.guess(x['id'], code)
+        #    return True, True
+        if (x['size'] <= 11) or \
+            (x['size'] <= 14 and 'tfold' in x['operators']):
             if tabu_pid != x['id']:
                 logger('Blowing up the tabu list.\n')
                 tabu_pid = x['id']
                 tabu = set()
-            solve_4(logger, cl, x)
-            return True
+            success = solve_4(logger, cl, x)
+            return True, success
     return False
 
 def solve_3(pid, size, opers):
@@ -125,12 +125,20 @@ def gen_ast0(sz, ops, vs, last):
         if nsz < 0:
             raise Exception()
         return nsz, [op, ast1, ast2, ast3]
+    elif op == 'fold':
+        nsz, ast1 = gen_ast0(sz - 4, ops, vs, False)
+        nsz, ast2 = gen_ast0(nsz + 1, ops, vs, False)
+        nsz, ast3 = gen_ast0(nsz + 1, ops, vs + 2, last)
+        if nsz < 0:
+            raise Exception()
+        return nsz, [op, ast1, ast2, ['lambda', ['x_' + str(vs), 'x_' + str(vs + 1)], ast3]]
     assert False
 
 def test(logger, cl, prob, p):
     global tabu
     assert valid(p)
     gp = gen(p)
+    #logger(gp + '\n')
     if gp in tabu:
         return False
     tabu.add(gp)

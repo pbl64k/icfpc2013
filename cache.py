@@ -19,7 +19,7 @@ class Cache:
         self.cl = Client(self.logger)
         try:
             self.problems = pickle.load(open('./problems.dat'))
-        except (ValueError, IOError):
+        except (ValueError, AttributeError, IOError):
             self.problems = {}
 
     def save(self):

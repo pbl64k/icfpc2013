@@ -18,15 +18,16 @@ def main(cl):
     while True:
         cl.upd_problems()
         resp = cl.myproblems()
-        res = process(logger, cl, resp)
+        res, success = process(logger, cl, resp)
         if not res:
             logger('Done.\n')
             break
-        try:
-            if os.path.exists('./x'):
-                break
-        except IOError:
-            continue
+        if success:
+            try:
+                if os.path.exists('./x'):
+                    break
+            except IOError:
+                continue
 
 with_cache(logger, main)
 
