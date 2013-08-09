@@ -18,13 +18,17 @@ class Cache:
             self.logger = lambda x: None
         self.cl = Client(self.logger)
         try:
-            self.problems = pickle.load(open('./problems.dat'))
-        except (ValueError, AttributeError, IOError):
+            f = open('./problems.dat', 'rb')
+            self.problems = pickle.load(f)
+            f.close()
+        except (ValueError, AttributeError, IndexError, TypeError, IOError):
             self.problems = {}
 
     def save(self):
         self.logger('Saving...\n')
-        pickle.dump(self.problems, open('./problems.dat', 'w'))
+        f = open('./problems.dat', 'wb')
+        pickle.dump(self.problems, f)
+        f.close()
 
     def upd_problems(self):
         self.logger('Updating problems...\n')
@@ -39,7 +43,7 @@ class Cache:
 
     def myproblems(self):
         r = self.problems.values()
-        r.sort(key = lambda x: (x['timeLimit'] if 'timeLimit' in x else 1000, x['size']))
+        r.sort(key = lambda x: (x['timeLeft'] if 'timeLeft' in x else 1000, x['size']))
         return r
 
     def guess(self, pid, code):
