@@ -31,8 +31,8 @@ def process(logger, cl, resp, force = False):
             logger(str(ops(p)) + '\n\n')
             cl.guess(x['id'], code)
             return True
-        if x['size'] <= 9 and 'fold' not in x['operators']:
-        #if x['size'] <= 12 and 'fold' not in x['operators'] and 'tfold' in x['operators']:
+        #if x['size'] <= 10 and 'fold' not in x['operators']:
+        if x['size'] <= 12 and 'fold' not in x['operators'] and 'tfold' in x['operators']:
             tabu = set()
             solve_4(logger, cl, x)
             return True

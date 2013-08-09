@@ -15,7 +15,9 @@ def logger(s):
 
 def main(cl):
     #pid = 'XBNFlPyaUmj7ANFcZADEZQDh'
-    pid = cl.train(11, ['tfold'])
+    #pid = 'UxfT5ySTPIbkArFkVhmd1IUC'
+    #pid = cl.train(11, ['tfold'])
+    pid = cl.train(10, [])
     process(logger, cl, [cl.problems[pid]], True)
 
 with_cache(logger, main)
