@@ -44,7 +44,7 @@ def valid_if(t):
         return False
     if len(t) != 4:
         return False
-    if t[0] != 'if':
+    if t[0] != 'if0':
         return False
     if not valid_expr(t[1]):
         return False
@@ -109,6 +109,20 @@ def sz(t):
         return 1 + sz(t[1]) + sz(t[2])
     if valid_lambda(t, 1) or valid_lambda(t, 2):
         return 1 + sz(t[2])
+    assert False
+
+def op_expr(t):
+    if valid_const(t) or valid_ident(t):
+        return frozenset()
+    if valid_if(t):
+        return frozenset(['if0']) | op_expr(t[1]) | op_expr(t[2]) | op_expr(t[3])
+    if valid_fold(t):
+        return frozenset(['fold']) | op_expr(t[1]) | op_expr(t[2]) | op_expr(t[3][2])
+    if valid_op1(t):
+        return frozenset([t[0]]) | op_expr(t[1])
+    if valid_op2(t):
+        return frozenset([t[0]]) | op_expr(t[1]) | op_expr(t[2])
+    assert False
 
 def gen(t):
     if isinstance(t, list):
@@ -119,5 +133,6 @@ if __name__ == '__main__':
     assert valid_op2(parse('(or y z)')) == True
     assert valid(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == True
     assert sz(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == 8
+    assert op_expr(parse('(fold x 0 (lambda (y z) (or y z)))')) == frozenset(['fold', 'or'])
     assert gen(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == '(lambda (x) (fold x 0 (lambda (y z) (or y z))))'
 
