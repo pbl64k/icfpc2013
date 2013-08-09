@@ -19,12 +19,16 @@ resp = cl.myproblems()
 for x in resp:
     print 'Size', x['size'], 'ops', x['operators'], x['id']
     if x['size'] == 3 and len(x['operators']) == 1:
+        print
+        print 'Solving...'
         code = solve_3(x['id'], x['size'], x['operators'])
         print code
         p = parse(code)
         print p
         print sz(p)
         print ops(p)
+        print
+        cl.guess(x['id'], code)
         break
 
 cl.print_status()

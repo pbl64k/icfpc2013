@@ -41,3 +41,12 @@ class Client:
             resp[ix]['operators'] = map(lambda x: x.encode('latin1'), resp[ix]['operators'])
         return resp
 
+    def guess(self, pid, code):
+        st, msg, resp = self.invoke('guess', {'id': str(pid), 'program': str(code)})
+        print 'Status:', st
+        print 'Reason:', msg
+        print 'Response:'
+        for k in resp:
+            print '%s: %s' % (k, str(resp[k]))
+        return resp
+
