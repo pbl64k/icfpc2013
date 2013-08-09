@@ -20,7 +20,7 @@ def process(logger, cl, resp, force = False):
                 (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
-        if x['size'] > 16:
+        if x['size'] > 17:
             return False, False
         #if x['size'] == 3 and len(x['operators']) == 1:
         #    logger('\nSolving...\n')
@@ -32,8 +32,8 @@ def process(logger, cl, resp, force = False):
         #    logger(str(ops(p)) + '\n\n')
         #    cl.guess(x['id'], code)
         #    return True, True
-        if (x['size'] <= 12) or \
-            (x['size'] <= 16 and 'tfold' in x['operators']):
+        if (x['size'] <= 13) or \
+            (x['size'] <= 17 and 'tfold' in x['operators']):
             if tabu_pid != x['id']:
                 logger('Blowing up the tabu list.\n')
                 tabu_pid = x['id']
