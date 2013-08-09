@@ -14,7 +14,7 @@ def logger(s):
     sys.stderr.write(s)
 
 def main(cl):
-    #cl.upd_problems()
+    cl.upd_problems()
     
     resp = cl.myproblems()
     
