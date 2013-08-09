@@ -110,8 +110,14 @@ def sz(t):
     if valid_lambda(t, 1) or valid_lambda(t, 2):
         return 1 + sz(t[2])
 
+def gen(t):
+    if isinstance(t, list):
+        return '(' + ' '.join(map(gen, t)) + ')'
+    return t
+
 if __name__ == '__main__':
     assert valid_op2(parse('(or y z)')) == True
     assert valid(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == True
     assert sz(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == 8
+    assert gen(parse('(lambda (x) (fold x 0 (lambda (y z) (or y z))))')) == '(lambda (x) (fold x 0 (lambda (y z) (or y z))))'
 
