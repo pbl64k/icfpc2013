@@ -23,8 +23,8 @@ def main(cl):
             logger('Done.\n')
             break
         try:
-            os.path.exists('./x')
-            break
+            if os.path.exists('./x'):
+                break
         except IOError:
             continue
 
