@@ -42,7 +42,7 @@ def eval_fold(x, v):
 
 def eval_op1(op, x):
     if op == 'not':
-        return ~x & mask_64
+        return (~x) & mask_64
     if op == 'shl1':
         return (x << 1) & mask_64
     if op == 'shr1':

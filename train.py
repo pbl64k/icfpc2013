@@ -14,6 +14,7 @@ def logger(s):
     sys.stderr.write(s)
 
 def main(cl):
+    #pid = 'XBNFlPyaUmj7ANFcZADEZQDh'
     pid = cl.train(11, ['tfold'])
     process(logger, cl, [cl.problems[pid]], True)
 

@@ -6,7 +6,10 @@ from bv import evl
 import copy
 import random
 
+tabu = set()
+
 def process(logger, cl, resp, force = False):
+    global tabu
     for x in resp:
         solved = 'solved' in x and x['solved']
         if not solved:
@@ -30,6 +33,7 @@ def process(logger, cl, resp, force = False):
             return True
         #if x['size'] <= 9 and 'fold' not in x['operators']:
         if x['size'] <= 12 and 'fold' not in x['operators'] and 'tfold' in x['operators']:
+            tabu = set()
             solve_4(logger, cl, x)
             return True
     return False
@@ -84,7 +88,6 @@ def gen_ast(sz, ops, vs):
             except:
                 continue
 
-# FIXME?
 def gen_ast0(sz, ops, vs, last):
     if sz < 1:
         raise Exception()
@@ -101,38 +104,45 @@ def gen_ast0(sz, ops, vs, last):
     elif op == 'var':
         return sz - 1, 'x_' + str(random.randrange(vs))
     elif op in ['not', 'shl1', 'shr1', 'shr4', 'shr16']:
-        nsz, ast = gen_ast0(sz - 1, ops, vs, True)
+        nsz, ast = gen_ast0(sz - 1, ops, vs, last)
         if nsz < 0:
             raise Exception()
         return nsz, [op, ast]
     elif op in ['and', 'or', 'xor', 'plus']:
         nsz, ast1 = gen_ast0(sz - 2, ops, vs, False)
-        nsz, ast2 = gen_ast0(nsz + 1, ops, vs, True)
+        nsz, ast2 = gen_ast0(nsz + 1, ops, vs, last)
         if nsz < 0:
             raise Exception()
         return nsz, [op, ast1, ast2]
     elif op == 'if0':
         nsz, ast1 = gen_ast0(sz - 3, ops, vs, False)
         nsz, ast2 = gen_ast0(nsz + 1, ops, vs, False)
-        nsz, ast3 = gen_ast0(nsz + 1, ops, vs, True)
+        nsz, ast3 = gen_ast0(nsz + 1, ops, vs, last)
         if nsz < 0:
             raise Exception()
         return nsz, [op, ast1, ast2, ast3]
     assert False
 
 def test(logger, cl, prob, p):
+    global tabu
     assert valid(p)
+    gp = gen(p)
+    if gp in tabu:
+        return False
+    tabu.add(gp)
     if sz(p) != prob['size']:
-        #logger('Size mismatch: %d vs. %s.\n' % (sz(p), prob['size']))
+        logger('Size mismatch: %d vs. %s.\n' % (sz(p), prob['size']))
         return False
     if ops(p) != frozenset(prob['operators']):
-        #logger('Ops mismatch.\n')
+        logger('Ops mismatch.\n')
         return False
     for k in prob['values']:
         logger('.')
         if prob['values'][k] != evl(p, k):
+            #logger('\n')
+            #logger(prob['challenge'] + '\n')
+            #logger(gp + '\n')
             logger('\nMismatch for %s: %s vs. %s.\n' % (hex(k), hex(prob['values'][k]), hex(evl(p, k))))
-            #exit()
             return False
     logger('\n')
     logger('All ok!\n')
