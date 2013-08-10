@@ -9,15 +9,22 @@ import random
 tabu_pid = None
 tabu = set()
 
-maxsize = 12
+maxsize = 14
 maxsize_tfold = 16
 
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu
     global maxsize, maxsize_tfold
+    busted = 0
     #exit()
     for x in resp:
         solved = 'solved' in x and x['solved']
+        if 'timeLeft' in x and x['timeLeft'] == 0:
+            if not solved:
+                busted += 1
+        elif busted >= 0:
+            logger('Problems busted %d\n' % busted)
+            busted = -1
         if not solved:
             logger('size: %d ops: %s id: %s %s %s\n' % \
                 (x['size'], str(x['operators']), x['id'], \
@@ -37,8 +44,10 @@ def process(logger, cl, resp, force = False):
         #    logger(str(ops(p)) + '\n\n')
         #    cl.guess(x['id'], code)
         #    return True, True
-        if 'bonus' not in x['operators'] and (x['size'] <= maxsize) or \
-            (x['size'] <= maxsize_tfold and 'tfold' in x['operators']):
+        if 'bonus' not in x['operators'] \
+            and 'fold' not in x['operators'] \
+            and ((x['size'] <= maxsize) \
+            or (x['size'] <= maxsize_tfold and 'tfold' in x['operators'])):
             if tabu_pid != x['id']:
                 logger('Blowing up the tabu list.\n')
                 tabu_pid = x['id']
