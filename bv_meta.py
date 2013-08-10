@@ -96,37 +96,62 @@ def valid_op2(t):
 def valid_ident(t):
     return isinstance(t, str) and re.match('^[a-z][a-z_0-9]*$', t)
 
+def is_if(x):
+    return x[0] == 'if0'
+
+def is_fold(x):
+    return x[0] == 'fold'
+
+def is_op1(x):
+    return x[0] in ['not', 'shl1', 'shr1', 'shr4', 'shr16']
+
+def is_op2(x):
+    return x[0] in ['and', 'or', 'xor', 'plus']
+
+def is_lambda(x):
+    return x[0] == 'lambda'
+
 def sz(t):
     if valid_const(t) or valid_ident(t):
         return 1
-    if valid_if(t):
+    #if valid_if(t):
+    if is_if(t):
         return 1 + sz(t[1]) + sz(t[2]) + sz(t[3])
-    if valid_fold(t):
+    #if valid_fold(t):
+    if is_fold(t):
         return 2 + sz(t[1]) + sz(t[2]) + sz(t[3][2])
-    if valid_op1(t):
+    #if valid_op1(t):
+    if is_op1(t):
         return 1 + sz(t[1])
-    if valid_op2(t):
+    #if valid_op2(t):
+    if is_op2(t):
         return 1 + sz(t[1]) + sz(t[2])
-    if valid_lambda(t, 1) or valid_lambda(t, 2):
+    #if valid_lambda(t, 1) or valid_lambda(t, 2):
+    if is_lambda(t):
         return 1 + sz(t[2])
     assert False
 
 def op_expr(t):
     if valid_const(t) or valid_ident(t):
         return frozenset()
-    if valid_if(t):
+    #if valid_if(t):
+    if is_if(t):
         return frozenset(['if0']) | op_expr(t[1]) | op_expr(t[2]) | op_expr(t[3])
-    if valid_fold(t):
+    #if valid_fold(t):
+    if is_fold(t):
         return frozenset(['fold']) | op_expr(t[1]) | op_expr(t[2]) | op_expr(t[3][2])
-    if valid_op1(t):
+    #if valid_op1(t):
+    if is_op1(t):
         return frozenset([t[0]]) | op_expr(t[1])
-    if valid_op2(t):
+    #if valid_op2(t):
+    if is_op2(t):
         return frozenset([t[0]]) | op_expr(t[1]) | op_expr(t[2])
     assert False
 
 def ops(t):
-    assert valid(t)
-    if valid_fold(t[2]) and t[2][2] == '0':
+    #assert valid(t)
+    #if valid_fold(t[2]) and t[2][2] == '0':
+    if isinstance(t[2], list) and t[2][0] == 'fold':
         return frozenset(['tfold']) | op_expr(t[2][3][2])
     return op_expr(t[2])
 

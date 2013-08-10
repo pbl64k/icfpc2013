@@ -22,6 +22,7 @@ class Cache:
             self.problems = pickle.load(f)
             f.close()
         except (ValueError, AttributeError, IndexError, TypeError, IOError):
+            self.logger('Error reading cached problem data.\n')
             self.problems = {}
 
     def save(self):

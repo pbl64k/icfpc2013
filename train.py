@@ -16,8 +16,8 @@ def logger(s):
 def main(cl):
     #pid = 'XBNFlPyaUmj7ANFcZADEZQDh'
     #pid = 'UxfT5ySTPIbkArFkVhmd1IUC'
-    pid = cl.train(16, ['tfold'])
-    #pid = cl.train(12, ['fold'])
+    #pid = cl.train(16, ['tfold'])
+    pid = cl.train(12, ['fold'])
     #pid = cl.train(12, [])
     process(logger, cl, [cl.problems[pid]], True)
 

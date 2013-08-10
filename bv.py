@@ -7,26 +7,30 @@ mask_8 = 0b11111111
 mask_64 = 0b1111111111111111111111111111111111111111111111111111111111111111
 
 def evl(p, x):
-    assert valid(p)
+    #assert valid(p)
     return eval0(p[2], {p[1][0]: x})
 
 def eval0(x, v):
     if valid_const(x):
         return int(x) & mask_64
     if valid_ident(x):
-        assert x in v
+        #assert x in v
         return v[x] & mask_64
-    if valid_if(x):
+    #if valid_if(x):
+    if is_if(x):
         c = eval0(x[1], v)
         if c == 0:
             return eval0(x[2], v)
         else:
             return eval0(x[3], v)
-    if valid_fold(x):
+    #if valid_fold(x):
+    if is_fold(x):
         return eval_fold(x, v)
-    if valid_op1(x):
+    #if valid_op1(x):
+    if is_op1(x):
         return eval_op1(x[0], eval0(x[1], v))
-    if valid_op2(x):
+    #if valid_op2(x):
+    if is_op2(x):
         return eval_op2(x[0], eval0(x[1], v), eval0(x[2], v))
     assert False
 
