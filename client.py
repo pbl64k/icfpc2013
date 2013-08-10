@@ -3,6 +3,7 @@ from secret import secret
 
 import httplib
 import json
+import sys
 import time
 
 class Client:
@@ -10,6 +11,9 @@ class Client:
         self.logger = logger
         if self.logger is None:
             self.logger = lambda x: None
+        if sys.executable[-4:] != 'pypy':
+            self.logger('Whoa! You should be using pypy.\n')
+            exit()
 
     def invoke(self, name, param):
         self.logger('Invoking %s...\n' % name)
