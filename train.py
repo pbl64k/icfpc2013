@@ -18,7 +18,8 @@ def main(cl):
     #pid = 'UxfT5ySTPIbkArFkVhmd1IUC'
     #pid = cl.train(17, ['tfold'])
     #pid = cl.train(13, ['fold'])
-    pid = cl.train(13, [])
+    #pid = cl.train(13, [])
+    pid = cl.train(42, [])
     process(logger, cl, [cl.problems[pid]], True)
 
 with_cache(logger, main)

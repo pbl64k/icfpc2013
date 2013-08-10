@@ -9,12 +9,13 @@ import random
 tabu_pid = None
 tabu = set()
 
-maxsize = 13
-maxsize_tfold = 17
+maxsize = 12
+maxsize_tfold = 16
 
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu
     global maxsize, maxsize_tfold
+    #exit()
     for x in resp:
         solved = 'solved' in x and x['solved']
         if not solved:
@@ -36,18 +37,29 @@ def process(logger, cl, resp, force = False):
         #    logger(str(ops(p)) + '\n\n')
         #    cl.guess(x['id'], code)
         #    return True, True
-        #if (x['size'] <= maxsize) or \
-        #    (x['size'] <= maxsize_tfold and 'tfold' in x['operators']):
-        #    if tabu_pid != x['id']:
-        #        logger('Blowing up the tabu list.\n')
-        #        tabu_pid = x['id']
-        #        tabu = set()
-        #    success = solve_4(logger, cl, x)
-        #    return True, success
-        if (x['size'] <= maxsize) or (x['size'] <= maxsize_tfold and 'tfold' in x['operators']):
-            success = solve_ts(logger, cl, x)
+        if 'bonus' not in x['operators'] and (x['size'] <= maxsize) or \
+            (x['size'] <= maxsize_tfold and 'tfold' in x['operators']):
+            if tabu_pid != x['id']:
+                logger('Blowing up the tabu list.\n')
+                tabu_pid = x['id']
+                tabu = set()
+            success = solve_4(logger, cl, x)
             return True, success
+        #if (x['size'] <= maxsize) or (x['size'] <= maxsize_tfold and 'tfold' in x['operators']):
+        #    success = solve_ts(logger, cl, x)
+        #    return True, success
     return False
+
+def disp(logger, cl, resp, filt = None):
+    if filt is None:
+        filt = lambda x: True
+    for x in resp:
+        if filt(x):
+            solved = 'solved' in x and x['solved']
+            logger('size: %d ops: %s id: %s %s %s\n' % \
+                (x['size'], str(x['operators']), x['id'], \
+                ('SOLVED!' if solved else 'unsolved.'), \
+                (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x else '')))
 
 def solve_3(pid, size, opers):
     assert size == 3
