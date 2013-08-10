@@ -9,8 +9,12 @@ import random
 tabu_pid = None
 tabu = set()
 
+maxsize = 13
+maxsize_tfold = 17
+
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu
+    global maxsize, maxsize_tfold
     for x in resp:
         solved = 'solved' in x and x['solved']
         if not solved:
@@ -20,7 +24,7 @@ def process(logger, cl, resp, force = False):
                 (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
-        if x['size'] > 17:
+        if x['size'] > max(maxsize, maxsize_tfold):
             return False, False
         #if x['size'] == 3 and len(x['operators']) == 1:
         #    logger('\nSolving...\n')
@@ -32,13 +36,16 @@ def process(logger, cl, resp, force = False):
         #    logger(str(ops(p)) + '\n\n')
         #    cl.guess(x['id'], code)
         #    return True, True
-        if (x['size'] <= 13) or \
-            (x['size'] <= 17 and 'tfold' in x['operators']):
-            if tabu_pid != x['id']:
-                logger('Blowing up the tabu list.\n')
-                tabu_pid = x['id']
-                tabu = set()
-            success = solve_4(logger, cl, x)
+        #if (x['size'] <= maxsize) or \
+        #    (x['size'] <= maxsize_tfold and 'tfold' in x['operators']):
+        #    if tabu_pid != x['id']:
+        #        logger('Blowing up the tabu list.\n')
+        #        tabu_pid = x['id']
+        #        tabu = set()
+        #    success = solve_4(logger, cl, x)
+        #    return True, success
+        if (x['size'] <= maxsize) or (x['size'] <= maxsize_tfold and 'tfold' in x['operators']):
+            success = solve_ts(logger, cl, x)
             return True, success
     return False
 
@@ -69,8 +76,29 @@ def solve_4(logger, cl, prob):
             logger('Found: %s\n' % gen(p))
             return cl.guess(pid, gen(p))
 
-def gen_vals():
-    vals = [0, 1, 2, 3, 4, 7, 8, 15, 16, 0xff, 0x100, 0x0102030405060708, 0xffffffffffffffff]
+def solve_ts(logger, cl, prob):
+    pid = prob['id']
+    vals = gen_vals()
+    cl.evl(pid, vals)
+    itr = 0
+    for p in itr_ast(prob['size'], prob['operators']):
+        itr += 1
+        if itr % 100000 == 0:
+            logger('iter: %d\n' % itr)
+        if test(lambda x: None, cl, prob, p, False):
+            logger('Found: %s\n' % gen(p))
+            res = cl.guess(pid, gen(p))
+            if res:
+                return res
+            else:
+                vals = gen_vals(False)
+                cl.evl(pid, vals)
+
+def gen_vals(init = True):
+    if init:
+        vals = [0, 1, 2, 3, 4, 7, 8, 15, 16, 0xff, 0x100, 0x0102030405060708, 0xffffffffffffffff]
+    else:
+        vals = []
     while len(vals) < 256:
         vals.append(random.randrange(0, 0xffffffffffffffff + 1))
     return vals
