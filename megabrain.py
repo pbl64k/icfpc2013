@@ -11,10 +11,11 @@ tabu = set()
 
 maxsize = 14
 maxsize_tfold = 16
+allow_fold = False
 
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu
-    global maxsize, maxsize_tfold
+    global maxsize, maxsize_tfold, allow_fold
     busted = 0
     #exit()
     for x in resp:
@@ -45,7 +46,7 @@ def process(logger, cl, resp, force = False):
         #    cl.guess(x['id'], code)
         #    return True, True
         if 'bonus' not in x['operators'] \
-            and 'fold' not in x['operators'] \
+            and (allow_fold or 'fold' not in x['operators']) \
             and ((x['size'] <= maxsize) \
             or (x['size'] <= maxsize_tfold and 'tfold' in x['operators'])):
             if tabu_pid != x['id']:

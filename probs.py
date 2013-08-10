@@ -47,13 +47,13 @@ def less_simple_tfold(x):
 def main(cl):
     cl.upd_problems()
     resp = cl.myproblems()
-    #disp(logger, cl, resp)
+    disp(logger, cl, resp)
     #disp(logger, cl, resp, filt = simple)
     #disp(logger, cl, resp, filt = less_simple)
     #disp(logger, cl, resp, filt = foldless)
     #disp(logger, cl, resp, filt = simple_tfold)
     #disp(logger, cl, resp, filt = less_simple_tfold)
-    disp(logger, cl, resp, filt = lambda x: x['size'] <= 20)
+    #disp(logger, cl, resp, filt = lambda x: x['size'] <= 20)
 
 with_cache(logger, main)
 
