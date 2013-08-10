@@ -9,13 +9,13 @@ import random
 tabu_pid = None
 tabu = set()
 
-maxsize = 14
+maxsize = 16
 maxsize_tfold = 16
-allow_fold = False
+maxsize_fold = 13
 
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu
-    global maxsize, maxsize_tfold, allow_fold
+    global maxsize, maxsize_tfold, maxsize_fold
     busted = 0
     #exit()
     for x in resp:
@@ -46,8 +46,8 @@ def process(logger, cl, resp, force = False):
         #    cl.guess(x['id'], code)
         #    return True, True
         if 'bonus' not in x['operators'] \
-            and (allow_fold or 'fold' not in x['operators']) \
-            and ((x['size'] <= maxsize) \
+            and ((x['size'] <= maxsize and 'fold' not in x['operators'] and not 'tfold' in x['operators']) \
+            or (x['size'] <= maxsize_fold) \
             or (x['size'] <= maxsize_tfold and 'tfold' in x['operators'])):
             if tabu_pid != x['id']:
                 logger('Blowing up the tabu list.\n')
