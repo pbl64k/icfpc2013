@@ -3,6 +3,7 @@ from bv_parser import parse
 from bv_meta import *
 from bv import evl
 from gen_ast import *
+from model import *
 
 import random
 import sys
@@ -13,10 +14,11 @@ tabu = set()
 maxsize = 16
 maxsize_tfold = 16
 maxsize_fold = 13
+maxsize_model = 4
 
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu
-    global maxsize, maxsize_tfold, maxsize_fold
+    global maxsize, maxsize_tfold, maxsize_fold, maxsize_model
     busted = 0
     #exit()
     for x in resp:
@@ -46,6 +48,16 @@ def process(logger, cl, resp, force = False):
         #    logger(str(ops(p)) + '\n\n')
         #    cl.guess(x['id'], code)
         #    return True, True
+        if 'bonus' not in x['operators'] \
+            and 'fold' not in x['operators'] \
+            and 'tfold' not in x['operators'] \
+            and (x['size'] <= maxsize_model):
+            pid = x['id']
+            vals = gen_vals()
+            cl.evl(pid, vals)
+            success = solve_model(logger, cl, x['size'], x['operators'], cl.problems[pid]['values'])
+            exit()
+            return True, success
         if 'bonus' not in x['operators'] \
             and ((x['size'] <= maxsize and 'fold' not in x['operators'] and not 'tfold' in x['operators']) \
             or (x['size'] <= maxsize_fold) \
@@ -95,6 +107,7 @@ def solve_4(logger, cl, prob):
             logger('iter: %d\n' % itr)
         if itr > 500000:
             return False
+        # do a switcheroo?
         p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1)]
         #logger('Trying: %s\n' % gen(p))
         #if test(logger, cl, prob, p):
