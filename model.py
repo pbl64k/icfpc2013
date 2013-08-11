@@ -6,7 +6,7 @@ import copy
 init('./Z3/z3-4.3.2.30df2837fbff-x86-ubuntu-12.04/bin/libz3.so')
 
 def solve_model(logger, cl, sz, operators0, vals):
-    print vals
+    #logger(str(vals) + '\n')
 
     operators = copy.deepcopy(operators0)
     operators.append('id')
@@ -59,7 +59,8 @@ def solve_model(logger, cl, sz, operators0, vals):
         #if val_num >= 4:
         #    break
 
-        print val_num, x, vals[x]
+        #logger('%d %d %d\n' % (val_num, x, vals[x]))
+        logger('.')
 
         fx = vals[x]
 
@@ -91,12 +92,14 @@ def solve_model(logger, cl, sz, operators0, vals):
 
         val_num += 1
 
-    print s.check()
+    logger('\n')
+
+    logger(str(s.check()) + '\n')
     model = s.model()
     for k in model:
         mk = str(model[k])
         if (k.name()[:3] == 'ops' or k.name()[:4] == 'args') and mk == '1':
-            print k.name(), mk
+            logger('%s: %s\n' % (k.name(), mk))
     exit()
 
     return True
@@ -123,7 +126,7 @@ def gen_op_disj(op, ops, args, svs):
     elif op == 'plus':
         return binary(lambda x, y: x + y == svs, op, ops, args, svs)
     else:
-        print 'FAIL -', op
+        logger('FAIL - ' + op + '\n')
         exit()
 
 def unary(f, op, ops, args, svs):
@@ -156,7 +159,7 @@ def gen_op(op, ops, args, svs):
     elif op == 'shr16':
         expr = LShR(gen_arg(args[0]), 16) == svs
     else:
-        print 'FAIL -', op
+        logger('FAIL - ' + op + '\n')
         exit()
     return And(ops[op] == 1, expr)
 

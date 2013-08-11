@@ -19,7 +19,7 @@ def main(cl):
     #pid = cl.train(17, ['tfold'])
     #pid = cl.train(14, ['fold'])
     #pid = cl.train(16, [])
-    pid = cl.train(4, [])
+    pid = cl.train(6, [])
     #pid = cl.train(42, [])
     #pid = cl.train(137, [])
     process(logger, cl, [cl.problems[pid]], True)
