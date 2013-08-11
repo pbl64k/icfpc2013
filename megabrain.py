@@ -13,9 +13,11 @@ tabu = set()
 
 maxsize = 1000
 maxsize_tfold = 1000
-maxsize_fold = 1000
+#maxsize_fold = 1000
+maxsize_fold = 10
 maxsize_model = 10
-maxsize_bonus = 1000
+#maxsize_bonus = 1000
+maxsize_bonus = 10
 
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu
@@ -116,7 +118,7 @@ def solve_4(logger, cl, prob):
         itr += 1
         if itr % 2500 == 0:
             logger('iter: %d\n' % itr)
-        if itr > 25000:
+        if itr > 12500:
             return False
         p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1, flip)]
         flip = not flip
