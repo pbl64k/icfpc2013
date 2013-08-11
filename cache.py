@@ -53,6 +53,8 @@ class Cache:
             self.problems[pid]['guesses'] = []
         self.problems[pid]['guesses'].append(code)
         res = self.cl.guess(pid, code)
+        if res is None:
+            return True
         if res['status'] == 'win':
             self.logger('\n********** WIN **********\n\n')
             self.problems[pid]['solved'] = True
