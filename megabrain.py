@@ -114,9 +114,9 @@ def solve_4(logger, cl, prob):
     flip = True
     while True:
         itr += 1
-        if itr % 5000 == 0:
+        if itr % 2500 == 0:
             logger('iter: %d\n' % itr)
-        if itr > 500000:
+        if itr > 100000:
             return False
         p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1, flip)]
         flip = not flip
