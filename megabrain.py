@@ -172,14 +172,15 @@ def test(logger, cl, prob, p, with_tabu = True):
     #if ops(p) != frozenset(prob['operators']):
     #    logger('Ops mismatch.\n')
     #    return False
-    for k in prob['values']:
-        logger('.')
-        if prob['values'][k] != evl(p, k):
-            #logger('\n')
-            #logger(prob['challenge'] + '\n')
-            #logger(gp + '\n')
-            logger('\nMismatch for %s: %s vs. %s.\n' % (hex(k), hex(prob['values'][k]), hex(evl(p, k))))
-            return False
+    if 'values' in prob and (prob['values'] is not None):
+        for k in prob['values']:
+            logger('.')
+            if prob['values'][k] != evl(p, k):
+                #logger('\n')
+                #logger(prob['challenge'] + '\n')
+                #logger(gp + '\n')
+                logger('\nMismatch for %s: %s vs. %s.\n' % (hex(k), hex(prob['values'][k]), hex(evl(p, k))))
+                return False
     logger('\n')
     logger('All ok!\n')
     return True
