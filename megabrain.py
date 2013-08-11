@@ -5,6 +5,7 @@ from bv import evl
 from gen_ast import *
 
 import random
+import sys
 
 tabu_pid = None
 tabu = set()
@@ -81,6 +82,9 @@ def solve_3(pid, size, opers):
     return code
 
 def solve_4(logger, cl, prob):
+    if sys.executable[-4:] != 'pypy':
+        self.logger('Whoa! You should be using pypy.\n')
+        exit()
     pid = prob['id']
     vals = gen_vals()
     cl.evl(pid, vals)
@@ -99,6 +103,9 @@ def solve_4(logger, cl, prob):
             return cl.guess(pid, gen(p))
 
 def solve_ts(logger, cl, prob):
+    if sys.executable[-4:] != 'pypy':
+        self.logger('Whoa! You should be using pypy.\n')
+        exit()
     pid = prob['id']
     vals = gen_vals()
     cl.evl(pid, vals)
@@ -134,12 +141,13 @@ def test(logger, cl, prob, p, with_tabu = True):
         if gp in tabu:
             return False
         tabu.add(gp)
-    if sz(p) != prob['size']:
+    #if sz(p) != prob['size']:
+    if sz(p) > prob['size']:
         logger('Size mismatch: %d vs. %s.\n' % (sz(p), prob['size']))
         return False
-    if ops(p) != frozenset(prob['operators']):
-        logger('Ops mismatch.\n')
-        return False
+    #if ops(p) != frozenset(prob['operators']):
+    #    logger('Ops mismatch.\n')
+    #    return False
     for k in prob['values']:
         logger('.')
         if prob['values'][k] != evl(p, k):
