@@ -13,9 +13,9 @@ tabu = set()
 
 maxsize = 30
 maxsize_tfold = 30
-maxsize_fold = 30
+maxsize_fold = 13
 maxsize_model = 10
-maxsize_bonus = 30
+maxsize_bonus = 13
 
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu

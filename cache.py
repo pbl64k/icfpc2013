@@ -44,7 +44,8 @@ class Cache:
 
     def myproblems(self):
         r = self.problems.values()
-        r.sort(key = lambda x: (x['timeLeft'] if 'timeLeft' in x else 1000, x['size']))
+        #r.sort(key = lambda x: (x['timeLeft'] if 'timeLeft' in x else 1000, x['size']))
+        r.sort(key = lambda x: (x['timeLeft'] if 'timeLeft' in x else 0, x['size']))
         return r
 
     def guess(self, pid, code):
