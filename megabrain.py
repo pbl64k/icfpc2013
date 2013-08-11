@@ -95,7 +95,7 @@ def solve_3(pid, size, opers):
 
 def solve_4(logger, cl, prob):
     if sys.executable[-4:] != 'pypy':
-        self.logger('Whoa! You should be using pypy.\n')
+        logger('Whoa! You should be using pypy.\n')
         exit()
     pid = prob['id']
     vals = gen_vals()
@@ -117,7 +117,7 @@ def solve_4(logger, cl, prob):
 
 def solve_ts(logger, cl, prob):
     if sys.executable[-4:] != 'pypy':
-        self.logger('Whoa! You should be using pypy.\n')
+        logger('Whoa! You should be using pypy.\n')
         exit()
     pid = prob['id']
     vals = gen_vals()
