@@ -30,27 +30,28 @@ def solve_model(logger, cl, sz, operators0, vals):
     args = []
 
     for step in range(steps):
-        args.append([{}])
-        args[step][0]['zero'] = [zero, Int('args_' + str(step) + '_' + str(0) + '_' + 'zero')]
-        s.add(Or(args[step][0]['zero'][1] == 0, args[step][0]['zero'][1] == 1))
-        args[step][0]['one'] = [one, Int('args_' + str(step) + '_' + str(0) + '_' + 'one')]
-        s.add(Or(args[step][0]['one'][1] == 0, args[step][0]['one'][1] == 1))
-        args[step][0]['m_x'] = [None, Int('args_' + str(step) + '_' + str(0) + '_' + 'm_x')]
-        s.add(Or(args[step][0]['m_x'][1] == 0, args[step][0]['m_x'][1] == 1))
-        #args[step][0]['zero'] = [zero, BitVec('args_' + str(step) + '_' + str(0) + '_' + 'zero', 64)]
-        #s.add(Or(args[step][0]['zero'][1] == 0, args[step][0]['zero'][1] == 1))
-        #args[step][0]['one'] = [one, BitVec('args_' + str(step) + '_' + str(0) + '_' + 'one', 64)]
-        #s.add(Or(args[step][0]['one'][1] == 0, args[step][0]['one'][1] == 1))
-        #args[step][0]['m_x'] = [None, BitVec('args_' + str(step) + '_' + str(0) + '_' + 'm_x', 64)]
-        #s.add(Or(args[step][0]['m_x'][1] == 0, args[step][0]['m_x'][1] == 1))
+        args.append([{}, {}, {}])
+        for ix in range(3):
+            args[step][ix]['zero'] = [zero, Int('args_' + str(step) + '_' + str(ix) + '_' + 'zero')]
+            s.add(Or(args[step][ix]['zero'][1] == 0, args[step][ix]['zero'][1] == 1))
+            args[step][ix]['one'] = [one, Int('args_' + str(step) + '_' + str(ix) + '_' + 'one')]
+            s.add(Or(args[step][ix]['one'][1] == 0, args[step][ix]['one'][1] == 1))
+            args[step][ix]['m_x'] = [None, Int('args_' + str(step) + '_' + str(ix) + '_' + 'm_x')]
+            s.add(Or(args[step][ix]['m_x'][1] == 0, args[step][ix]['m_x'][1] == 1))
+            #args[step][ix]['zero'] = [zero, BitVec('args_' + str(step) + '_' + str(ix) + '_' + 'zero', 64)]
+            #s.add(Or(args[step][ix]['zero'][1] == 0, args[step][ix]['zero'][1] == 1))
+            #args[step][ix]['one'] = [one, BitVec('args_' + str(step) + '_' + str(ix) + '_' + 'one', 64)]
+            #s.add(Or(args[step][ix]['one'][1] == 0, args[step][ix]['one'][1] == 1))
+            #args[step][ix]['m_x'] = [None, BitVec('args_' + str(step) + '_' + str(ix) + '_' + 'm_x', 64)]
+            #s.add(Or(args[step][ix]['m_x'][1] == 0, args[step][ix]['m_x'][1] == 1))
 
-        for st in range(step):
-            args[step][0]['svs_' + str(st)] = [None, Int('args_' + str(step) + '_' + str(0) + '_' + 'svs_' + str(st))]
-            s.add(Or(args[step][0]['svs_' + str(st)][1] == 0, args[step][0]['svs_' + str(st)][1] == 1))
-            #args[step][0]['svs_' + str(st)] = [None, BitVec('args_' + str(step) + '_' + str(0) + '_' + 'svs_' + str(st), 64)]
-            #s.add(Or(args[step][0]['svs_' + str(st)][1] == 0, args[step][0]['svs_' + str(st)][1] == 1))
+            for st in range(step):
+                args[step][ix]['svs_' + str(st)] = [None, Int('args_' + str(step) + '_' + str(ix) + '_' + 'svs_' + str(st))]
+                s.add(Or(args[step][0]['svs_' + str(st)][1] == 0, args[step][ix]['svs_' + str(st)][1] == 1))
+                #args[step][ix]['svs_' + str(st)] = [None, BitVec('args_' + str(step) + '_' + str(ix) + '_' + 'svs_' + str(st), 64)]
+                #s.add(Or(args[step][0]['svs_' + str(st)][1] == 0, args[step][ix]['svs_' + str(st)][1] == 1))
 
-        s.add(Sum(map(lambda x: x[1], args[step][0].values())) == 1)
+            s.add(Sum(map(lambda x: x[1], args[step][ix].values())) == 1)
 
     val_num = 0
 
@@ -69,9 +70,13 @@ def solve_model(logger, cl, sz, operators0, vals):
 
         for step in range(steps):
             args[step][0]['m_x'][0] = m_x
+            args[step][1]['m_x'][0] = m_x
+            args[step][2]['m_x'][0] = m_x
 
             for st in range(step):
                 args[step][0]['svs_' + str(st)][0] = svs[st]
+                args[step][1]['svs_' + str(st)][0] = svs[st]
+                args[step][2]['svs_' + str(st)][0] = svs[st]
 
             svs.append(BitVec('svs_' + str(val_num) + '_' + str(step), 64))
 
@@ -97,25 +102,44 @@ def solve_model(logger, cl, sz, operators0, vals):
     return True
 
 def gen_op_disj(op, ops, args, svs):
+    if op == 'id':
+        return unary(lambda x: x == svs, op, ops, args, svs)
+    elif op == 'not':
+        return unary(lambda x: ~x == svs, op, ops, args, svs)
+    elif op == 'shl1':
+        return unary(lambda x: x << 1 == svs, op, ops, args, svs)
+    elif op == 'shr1':
+        return unary(lambda x: LShR(x, 1) == svs, op, ops, args, svs)
+    elif op == 'shr4':
+        return unary(lambda x: LShR(x, 4) == svs, op, ops, args, svs)
+    elif op == 'shr16':
+        return unary(lambda x: LShR(x, 16) == svs, op, ops, args, svs)
+    elif op == 'and':
+        return binary(lambda x, y: x & y == svs, op, ops, args, svs)
+    elif op == 'or':
+        return binary(lambda x, y: x | y == svs, op, ops, args, svs)
+    elif op == 'xor':
+        return binary(lambda x, y: x ^ y == svs, op, ops, args, svs)
+    elif op == 'plus':
+        return binary(lambda x, y: x + y == svs, op, ops, args, svs)
+    else:
+        print 'FAIL -', op
+        exit()
+
+def unary(f, op, ops, args, svs):
     x_arg = []
     for k in args[0]:
         x = args[0][k][0]
-        if op == 'id':
-            expr = x == svs
-        elif op == 'not':
-            expr = ~x == svs
-        elif op == 'shl1':
-            expr = x << 1 == svs
-        elif op == 'shr1':
-            expr = LShR(x, 1) == svs
-        elif op == 'shr4':
-            expr = LShR(x, 4) == svs
-        elif op == 'shr16':
-            expr = LShR(x, 16) == svs
-        else:
-            print 'FAIL -', op
-            exit()
-        x_arg.append(And(args[0][k][1] == 1, expr))
+        x_arg.append(And(args[0][k][1] == 1, f(x)))
+    return And(ops[op] == 1, apply(Or, x_arg))
+
+def binary(f, op, ops, args, svs):
+    x_arg = []
+    for k0 in args[0]:
+        for k1 in args[1]:
+            x = args[0][k0][0]
+            y = args[1][k1][0]
+            x_arg.append(And(args[0][k0][1] == 1, args[1][k1][1] == 1, f(x, y)))
     return And(ops[op] == 1, apply(Or, x_arg))
 
 def gen_op(op, ops, args, svs):
