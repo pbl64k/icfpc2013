@@ -55,7 +55,7 @@ def process(logger, cl, resp, force = False):
             pid = x['id']
             vals = gen_vals(False)
             cl.evl(pid, vals)
-            success = solve_model(logger, cl, x['size'], x['operators'], cl.problems[pid]['values'])
+            success = solve_model(logger, cl, x['size'], x['operators'], cl.problems[pid]['values'], x['id'])
             exit()
             return True, success
         if 'bonus' not in x['operators'] \

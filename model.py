@@ -1,11 +1,13 @@
 
+from bv_meta import *
+
 from z3 import *
 
 import copy
 
 init('./Z3/z3-4.3.2.30df2837fbff-x86-ubuntu-12.04/bin/libz3.so')
 
-def solve_model(logger, cl, sz, operators0, vals):
+def solve_model(logger, cl, sz, operators0, vals, pid):
     #logger(str(vals) + '\n')
 
     operators = copy.deepcopy(operators0)
@@ -32,12 +34,12 @@ def solve_model(logger, cl, sz, operators0, vals):
     for step in range(steps):
         args.append([{}, {}, {}])
         for ix in range(3):
-            args[step][ix]['zero'] = [zero, Int('args_' + str(step) + '_' + str(ix) + '_' + 'zero')]
-            s.add(Or(args[step][ix]['zero'][1] == 0, args[step][ix]['zero'][1] == 1))
-            args[step][ix]['one'] = [one, Int('args_' + str(step) + '_' + str(ix) + '_' + 'one')]
-            s.add(Or(args[step][ix]['one'][1] == 0, args[step][ix]['one'][1] == 1))
-            args[step][ix]['m_x'] = [None, Int('args_' + str(step) + '_' + str(ix) + '_' + 'm_x')]
-            s.add(Or(args[step][ix]['m_x'][1] == 0, args[step][ix]['m_x'][1] == 1))
+            args[step][ix]['zero_0'] = [zero, Int('args_' + str(step) + '_' + str(ix) + '_' + 'zero_0')]
+            s.add(Or(args[step][ix]['zero_0'][1] == 0, args[step][ix]['zero_0'][1] == 1))
+            args[step][ix]['one_0'] = [one, Int('args_' + str(step) + '_' + str(ix) + '_' + 'one_0')]
+            s.add(Or(args[step][ix]['one_0'][1] == 0, args[step][ix]['one_0'][1] == 1))
+            args[step][ix]['mx_0'] = [None, Int('args_' + str(step) + '_' + str(ix) + '_' + 'mx_0')]
+            s.add(Or(args[step][ix]['mx_0'][1] == 0, args[step][ix]['mx_0'][1] == 1))
             #args[step][ix]['zero'] = [zero, BitVec('args_' + str(step) + '_' + str(ix) + '_' + 'zero', 64)]
             #s.add(Or(args[step][ix]['zero'][1] == 0, args[step][ix]['zero'][1] == 1))
             #args[step][ix]['one'] = [one, BitVec('args_' + str(step) + '_' + str(ix) + '_' + 'one', 64)]
@@ -56,7 +58,7 @@ def solve_model(logger, cl, sz, operators0, vals):
     val_num = 0
 
     for x in vals:
-        #if val_num >= 4:
+        #if val_num >= 64:
         #    break
 
         #logger('%d %d %d\n' % (val_num, x, vals[x]))
@@ -70,9 +72,9 @@ def solve_model(logger, cl, sz, operators0, vals):
         svs = []
 
         for step in range(steps):
-            args[step][0]['m_x'][0] = m_x
-            args[step][1]['m_x'][0] = m_x
-            args[step][2]['m_x'][0] = m_x
+            args[step][0]['mx_0'][0] = m_x
+            args[step][1]['mx_0'][0] = m_x
+            args[step][2]['mx_0'][0] = m_x
 
             for st in range(step):
                 args[step][0]['svs_' + str(st)][0] = svs[st]
@@ -94,15 +96,67 @@ def solve_model(logger, cl, sz, operators0, vals):
 
     logger('\n')
 
+    rops = [None for ix in range(steps)]
+    rargs = [[None, None, None] for ix in range(steps)]
+
     logger(str(s.check()) + '\n')
     model = s.model()
     for k in model:
         mk = str(model[k])
         if (k.name()[:3] == 'ops' or k.name()[:4] == 'args') and mk == '1':
             logger('%s: %s\n' % (k.name(), mk))
-    exit()
+            if k.name()[:3] == 'ops':
+                d, rst, rop = k.name().split('_')
+                rops[int(rst)] = rop
+            if k.name()[:4] == 'args':
+                d, rst, ran, rtp, rix = k.name().split('_')
+                rargs[int(rst)][int(ran)] = rtp + '_' + rix
+    logger(str(rops) + '\n')
+    logger(str(rargs) + '\n')
+    prog = gen_p(rops, rargs, steps - 1)
+    logger(str(prog) + '\n')
+    logger(gen(prog) + '\n')
 
-    return True
+    return cl.guess(pid, gen(prog))
+
+def gen_p(rops, rargs, ix):
+    return ['lambda', ['x_0'], gen_c(rops, rargs, ix)]
+
+def gen_c(rops, rargs, ix):
+    op = rops[ix]
+    if op == 'id':
+        return gen_ac(rops, rargs, rargs[ix][0])
+    elif op == 'not':
+        return ['not', gen_ac(rops, rargs, rargs[ix][0])]
+    elif op == 'shl1':
+        return ['shl1', gen_ac(rops, rargs, rargs[ix][0])]
+    elif op == 'shr1':
+        return ['shr1', gen_ac(rops, rargs, rargs[ix][0])]
+    elif op == 'shr4':
+        return ['shr4', gen_ac(rops, rargs, rargs[ix][0])]
+    elif op == 'shr16':
+        return ['shr16', gen_ac(rops, rargs, rargs[ix][0])]
+    elif op == 'and':
+        return ['and', gen_ac(rops, rargs, rargs[ix][0]), gen_ac(rops, rargs, rargs[ix][1])]
+    elif op == 'or':
+        return ['or', gen_ac(rops, rargs, rargs[ix][0]), gen_ac(rops, rargs, rargs[ix][1])]
+    elif op == 'xor':
+        return ['xor', gen_ac(rops, rargs, rargs[ix][0]), gen_ac(rops, rargs, rargs[ix][1])]
+    elif op == 'plus':
+        return ['plus', gen_ac(rops, rargs, rargs[ix][0]), gen_ac(rops, rargs, rargs[ix][1])]
+    assert False
+
+def gen_ac(rops, rargs, art):
+    if art == 'zero_0':
+        return '0'
+    elif art == 'one_0':
+        return '1'
+    elif art == 'mx_0':
+        return 'x_0'
+    else:
+        d, ix = art.split('_')
+        ix = int(ix)
+        return gen_c(rops, rargs, ix)
 
 def gen_op_disj(op, ops, args, svs):
     if op == 'id':
@@ -140,6 +194,8 @@ def binary(f, op, ops, args, svs):
     x_arg = []
     for k0 in args[0]:
         for k1 in args[1]:
+            if k1 < k0:
+                continue
             x = args[0][k0][0]
             y = args[1][k1][0]
             x_arg.append(And(args[0][k0][1] == 1, args[1][k1][1] == 1, f(x, y)))
