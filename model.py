@@ -1,11 +1,11 @@
 
 from bv_meta import *
 
-from z3 import *
+#from z3 import *
 
 import copy
 
-init('./Z3/z3-4.3.2.30df2837fbff-x86-ubuntu-12.04/bin/libz3.so')
+#init('./Z3/z3-4.3.2.30df2837fbff-x86-ubuntu-12.04/bin/libz3.so')
 
 def solve_model(logger, cl, sz, operators0, vals, pid):
     #logger(str(vals) + '\n')

@@ -11,14 +11,15 @@ import sys
 tabu_pid = None
 tabu = set()
 
-maxsize = 16
+maxsize = 30
 maxsize_tfold = 16
 maxsize_fold = 13
 maxsize_model = 10
+maxsize_bonus = 16
 
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu
-    global maxsize, maxsize_tfold, maxsize_fold, maxsize_model
+    global maxsize, maxsize_tfold, maxsize_fold, maxsize_model, maxsize_bonus
     busted = 0
     #exit()
     for x in resp:
@@ -36,7 +37,7 @@ def process(logger, cl, resp, force = False):
                 (('time: ' + str(x['timeLeft'])) if 'timeLeft' in x else '')))
         if not force and (solved or ('timeLeft' in x and x['timeLeft'] == 0)):
             continue
-        if x['size'] > max(maxsize, maxsize_tfold):
+        if x['size'] > max(maxsize, maxsize_tfold, maxsize_fold, maxsize_model, maxsize_bonus):
             return False, False
         #if x['size'] == 3 and len(x['operators']) == 1:
         #    logger('\nSolving...\n')
@@ -62,6 +63,15 @@ def process(logger, cl, resp, force = False):
             and ((x['size'] <= maxsize and 'fold' not in x['operators'] and not 'tfold' in x['operators']) \
             or (x['size'] <= maxsize_fold) \
             or (x['size'] <= maxsize_tfold and 'tfold' in x['operators'])):
+            if tabu_pid != x['id']:
+                logger('Blowing up the tabu list.\n')
+                tabu_pid = x['id']
+                tabu = set()
+            success = solve_4(logger, cl, x)
+            return True, success
+        if 'bonus' in x['operators'] \
+            and (x['size'] <= maxsize_bonus):
+            #x['operators'] = [o for o in x['operators'] if o != 'bonus']
             if tabu_pid != x['id']:
                 logger('Blowing up the tabu list.\n')
                 tabu_pid = x['id']
@@ -101,14 +111,15 @@ def solve_4(logger, cl, prob):
     vals = gen_vals()
     cl.evl(pid, vals)
     itr = 0
+    flip = True
     while True:
         itr += 1
         if itr % 5000 == 0:
             logger('iter: %d\n' % itr)
         if itr > 500000:
             return False
-        # do a switcheroo?
-        p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1)]
+        p = ['lambda', ['x_0'], gen_ast(prob['size'] - 1, prob['operators'], 1, flip)]
+        flip = not flip
         #logger('Trying: %s\n' % gen(p))
         #if test(logger, cl, prob, p):
         if test(lambda x: None, cl, prob, p):

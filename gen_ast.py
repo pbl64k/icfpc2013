@@ -55,19 +55,32 @@ def itr_ast1(sz, ops, vs, last):
                             if nsz3 >= 0:
                                 yield nsz3, [op, ast1, ast2, ['lambda', ['x_' + str(vs), 'x_' + str(vs + 1)], ast3]]
 
-def gen_ast(sz, ops, vs):
+def gen_ast(sz, ops, vs, flip):
     if 'tfold' in ops:
         ops0 = [x for x in ops if ops != 'tfold']
         while True:
             try:
-                res = ['fold', 'x_0', '0', ['lambda', ['x_0', 'x_1'], gen_ast0(sz - 4, ops0, vs + 1, True)[1]]]
+                res = ['fold', 'x_0', '0', ['lambda', ['x_0', 'x_1'], gen_ast0(sz - 4, ops0, vs + 1, flip)[1]]]
+                return res
+            except:
+                continue
+    elif 'bonus' in ops:
+        ops0 = [x for x in ops if ops != 'bonus']
+        while True:
+            try:
+                nsz1, ast1 = gen_ast0(sz - 3, ops0, vs, False)
+                nsz2, ast2 = gen_ast0(nsz1 + 1, ops0, vs, False)
+                nsz3, ast3 = gen_ast0(nsz2 + 1, ops0, vs, flip)
+                if nsz3 < 0:
+                    continue
+                res = ['if0', ast1, ast2, ast3]
                 return res
             except:
                 continue
     else:
         while True:
             try:
-                res = gen_ast0(sz, ops, vs, True)
+                res = gen_ast0(sz, ops, vs, flip)
                 return res[1]
             except:
                 continue
