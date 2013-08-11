@@ -62,8 +62,12 @@ def solve_model(sz, operators, vals):
 
             svs.append(BitVec('svs_' + str(val_num) + '_' + str(step), 64))
 
-            s.add(Or(And(ops[step]['id'] == 1, gen_arg(args[step][0]) == svs[step]), \
-                And(ops[step]['not'] == 1, ~gen_arg(args[step][0]) == svs[step])))
+            op_m = []
+
+            for op in operators:
+                op_m.append(gen_op(op, ops[step], args[step], svs[step]))
+
+            s.add(apply(Or, op_m))
 
         s.add(m_fx == svs[steps - 1])
 
@@ -71,6 +75,16 @@ def solve_model(sz, operators, vals):
 
     print s.check()
     print s.model()
+
+def gen_op(op, ops, args, svs):
+    if op == 'id':
+        expr = gen_arg(args[0]) == svs
+    elif op == 'not':
+        expr = ~gen_arg(args[0]) == svs
+    else:
+        print 'FAIL -', op
+        exit()
+    return And(ops[op] == 1, expr)
 
 def gen_arg(args):
     expr = 0
