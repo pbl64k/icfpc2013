@@ -14,7 +14,7 @@ tabu = set()
 maxsize = 16
 maxsize_tfold = 16
 maxsize_fold = 13
-maxsize_model = 4
+maxsize_model = 10
 
 def process(logger, cl, resp, force = False):
     global tabu_pid, tabu
@@ -53,7 +53,7 @@ def process(logger, cl, resp, force = False):
             and 'tfold' not in x['operators'] \
             and (x['size'] <= maxsize_model):
             pid = x['id']
-            vals = gen_vals()
+            vals = gen_vals(False)
             cl.evl(pid, vals)
             success = solve_model(logger, cl, x['size'], x['operators'], cl.problems[pid]['values'])
             exit()
