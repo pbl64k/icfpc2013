@@ -72,7 +72,7 @@ class Cache:
     def evl(self, pid, xs):
         assert pid in self.problems
         res = self.cl.evl(pid, xs)
-        if res['status'] != 'ok':
+        if res is None or res['status'] != 'ok':
             return
         for x, f in zip(xs, res['outputs']):
             f0 = int(f[2:], 16)

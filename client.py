@@ -97,5 +97,7 @@ class Client:
                     continue
                 self.logger('%s: %s\n' % (k, str(resp[k])))
         self.logger('\n')
+        if st == 412:
+            return None
         return resp
 
