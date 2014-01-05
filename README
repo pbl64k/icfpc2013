@@ -1,0 +1,111 @@
+This year's ICFPC felt rather enjoyable while it lasted, but it left a
+rather bad aftertaste.
+
+Once again I played solo, this time under the moniker "By Wadler's Beard!"
+(obviously inspired by last year's unforgettable Wadler's Beard Boulder Dash
+level). Instead of my usual C++ I stuck to Python and haven't really
+regretted it. Using 2.x and pypy gave me sufficient performance to do fairly
+well overall, and lacking performance was compensated for by more rapid
+development.
+
+Now, a few words about why this contest sucked.
+
+0. It was organized by Microsoft Research. I was initially quite pleased to
+   hear that, as the place is known as a home for a lot of bright minds.
+   However, it would appear the bright minds in question don't give a damn
+   about anything except their own (mildly sinister) goals.
+
+1. They haven't taken ownership of the customary icfpcontest.org domain,
+   because, hey, they have their own. Why bother with silly traditions?
+
+2. Their pre-contest hint was, I think, the most idiotic ICFPC has ever
+   seen. They basically told everyone it's going to be about program
+   synthesis. In the clear. DUH.
+
+3. Why did they do that? Because they don't really care about the contest,
+   or contestants, one bit. They freely admitted that their only goal was to
+   crowdsource a lot of free brainpower to solve their own research goals,
+   and naturally a plainly stated problem domain helped that free brainpower
+   to prep properly. Now this is actually par for the course as far as ICFPC
+   is concerned, as I believe past organizers picked problems often close to
+   their own research. They also usually showed at least a modicum of
+   concern for the participants' interests, however.
+
+4. Which certainly isn't something this year's organized displayed in the
+   least. The most glaring omission was the leaderboard. This contest was
+   scored in real-time, so an online leaderboard would have been easy to set
+   up. It wasn't, and all requests for it were ignored. Morever, the
+   organizers hadn't even published the final standings, so except for the
+   winners no one knows how did they actually do. Really, why bother?
+
+In short, please get this contest back into academia's hands. No more
+industry jerks.
+
+Anyway, the problem was pretty straightforward. The organizers provided a
+service that participants could query over HTTP. Every participant was
+assigned around fifteen hundred problems. Each problem was a secret function
+in a simple Lisp-like language without loops or recursion. A participant
+could request a function spec, which consisted of function size, primitives
+involved in its construction and outputs on a number of inputs (the latter
+chosen by participant themselves). Outputs for additional inputs could be
+requested, but there were pretty stringent limitations on the number of
+requests the server would accept in a given period of time. After receiving
+the spec a team had five minutes to submit a function equivalent in behavior
+to the withheld one. Doing so would result in scoring one point, otherwise
+the point for that problem would be irrevocably lost. If a function
+submitted was incorrect the server would respond with a counter-example
+(input-output pair that demonstrated a difference in behavior).
+
+This structure of the contest implies some interesting trade-offs. After
+seeing the spec, you have to solve the problem fairly quickly, and there is
+an upper limit on the number of problems available, so failure to solve
+loses you a point permanently. Until the last day I was fairly conservative
+in "spending" my problems precisely because of this.
+
+Anyhow, I was pretty certain there were some seriously smart propeller-heads
+out there who would try to synthesize their functions cleverly. But I opted
+for a brute force approach initially.
+
+After implementing the language spec, I wrote a simple random search that
+would generate functions of appropriate size and check them against the
+spec. That turned out to be entirely sufficient to solve a large fraction of
+problems of size well into mid-teens. This allowed me to do pretty well in
+the lightning round. As I mentioned before, the organizers didn't bother to
+publish the actual standings, but from vague blog posts I know I was below
+10th but above 25th (out of roughly a hundred and fifty teams) after the
+lightning round. I consider this to be a very good performance for me.
+
+Two things contributed the most to this - random search (I tried exhaustive
+search later, and it worked much worse than just probing the solution space
+randomly) and pressing on once I realized my solver was doing pretty well.
+Unfortunately, I haven't realized at that point that the organizers wanted
+any function that matched the spec, so I always tried to generate functions
+of the exact same size as the spec said. Turned out, many problems had very
+small equivalent solutions, which could further improve search efficiency.
+
+Unfortunately, I've never made much progress after the lightning round.
+Apart from a few efficiency imporvements, the biggest thing I tried was
+using Z3 to model the problem as a constrained search task. While I was
+modestly successful in that, the performance in general turned out to be far
+inferior to simple random search. Ironically, that seems to have been a
+universal experience, so the organizers have mostly failed in their
+crowdsourcing attempt. Top teams typically employed brute force with some
+extra cleverness and massive computing power behind it (as in numerous
+rented EC2 instances or somesuch).
+
+That's pretty much what I did in the end, as I was at a loss for fresh ideas
+after SMT's failure. About twelve hours before the end of the contest I
+realized I should just sic my solver on the problems I had remaining (and I
+was a little late off the blocks, it seems, as I still had some untried
+remaining when the contest ended), so I started running four instances of my
+best solver on my desktop gaming rig. The lack of cleverness, lack of
+massive computing power, and pypy's lukewarm performance compared to major
+league badass languages like C++ or OCaml contributed to my fairly modest
+results in this phase. Once again, based on the organizers' vague
+generalities, I placed somewhere between 75th and 100th (out of approx. 275
+teams) when the dust settled.
+
+Anyhow, it was reasonably fun while it lasted, but the organizers' damn-all
+attitude, and the fact that in hindsight, the problem appears to be much
+less interesting than it seemed during the contest, leads me to rank this as
+the worst ICFPC I've ever participated in (that is, since 2009).
